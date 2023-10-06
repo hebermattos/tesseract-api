@@ -9,8 +9,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton(x=> new TesseractEngine(@"./tessdata", "eng", EngineMode.Default));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -12,17 +12,18 @@ public class TesseracController : ControllerBase
     public List<OcrResult> Post(IFormFile file)
     {
         var engineModes = Enum.GetNames(typeof(EngineMode)).ToList();
-        var pageSegModes = Enum.GetNames(typeof(PageSegMode)).ToList();
+        var pageSegModes = Enum.GetNames(typeof(PageSegMode)).Where(x => !x.Equals("OsdOnly")).ToList();
 
         var result = new List<OcrResult>();
 
         foreach (var engineMode in engineModes)
         {
+            using var eng = new TesseractEngine(@"./tessdata", "eng", (EngineMode)Enum.Parse(typeof(EngineMode), engineMode, true));
+
             foreach (var pageSegMode in pageSegModes)
             {
                 try
                 {
-                    using var eng = new TesseractEngine(@"./tessdata", "eng", (EngineMode)Enum.Parse(typeof(EngineMode), engineMode, true));
                     eng.DefaultPageSegMode = (PageSegMode)Enum.Parse(typeof(PageSegMode), pageSegMode, true);
 
                     using var memoryStream = new MemoryStream();
@@ -45,13 +46,18 @@ public class TesseracController : ControllerBase
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("EX: " + ex.ToString());
+                    result.Add(new OcrResult
+                    {
+                        Text = ex.ToString(),
+                        EngineMode = engineMode,
+                        PageSegMode = pageSegMode,
+                        MeanConfidence = 0
+                    });
                 }
             }
         }
 
         return result
-            .Where(x => x.MeanConfidence > 0)
             .OrderByDescending(x => x.MeanConfidence)
             .ToList();
     }

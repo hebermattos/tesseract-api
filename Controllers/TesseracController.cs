@@ -46,6 +46,9 @@ public class TesseracController : ControllerBase
             }
         }
 
-        return result.OrderByDescending(x => x.MeanConfidence).ToList();
+        return result
+            .Where(x => x.MeanConfidence > 0)
+            .OrderByDescending(x => x.MeanConfidence)
+            .ToList();
     }
 }

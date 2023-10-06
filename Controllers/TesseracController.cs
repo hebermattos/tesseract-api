@@ -17,20 +17,14 @@ public class TesseracController : ControllerBase
     [HttpPost]
     public string Post(IFormFile file)
     {
-        using (var memoryStream = new MemoryStream())
-        {
-            file.CopyTo(memoryStream);
-            var fileBytes = memoryStream.ToArray();
+        using var memoryStream = new MemoryStream();
+        file.CopyTo(memoryStream);
+        var fileBytes = memoryStream.ToArray();
 
-            using (var img = Pix.LoadFromMemory(fileBytes))
-            {
-                using (var page = _tesseractEngine.Process(img))
-                {
-                    var text = page.GetText();
+        using var img = Pix.LoadFromMemory(fileBytes);
+        using var page = _tesseractEngine.Process(img);        
+        var text = page.GetText();
 
-                    return text;
-                }
-            }
-        }
+        return text;
     }
 }

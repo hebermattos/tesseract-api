@@ -11,8 +11,10 @@ public class TesseracController : ControllerBase
     [HttpPost]
     public List<OcrResult> Post(IFormFile file)
     {
+        var notValidPageSegModes = new List<string>() { "Count", "OsdOnly" };
+
         var engineModes = Enum.GetNames(typeof(EngineMode)).ToList();
-        var pageSegModes = Enum.GetNames(typeof(PageSegMode)).Where(x => !x.Equals("OsdOnly")).ToList();
+        var pageSegModes = Enum.GetNames(typeof(PageSegMode)).Where(x => !notValidPageSegModes.Contains(x)).ToList();
 
         var result = new List<OcrResult>();
 

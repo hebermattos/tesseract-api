@@ -18,9 +18,16 @@ public class TesseracController : ControllerBase
 
         var result = new List<OcrResult>();
 
+        var initVars = new Dictionary<string, object>() {
+            { "load_system_dawg", true },
+            { "user_words_suffix", "user-words" }
+        };
+
         foreach (var engineMode in engineModes)
         {
-            using var eng = new TesseractEngine(@"./tessdata", "eng", (EngineMode)Enum.Parse(typeof(EngineMode), engineMode, true));
+            Console.WriteLine("1");
+            using var eng = new TesseractEngine(@"./tessdata", "eng", (EngineMode)Enum.Parse(typeof(EngineMode), engineMode, true), Enumerable.Empty<string>(), initVars, false);
+            Console.WriteLine("2");
 
             foreach (var pageSegMode in pageSegModes)
             {
@@ -30,8 +37,9 @@ public class TesseracController : ControllerBase
                     file.CopyTo(memoryStream);
                     var fileBytes = memoryStream.ToArray();
 
-                    using var img = Pix.LoadFromMemory(fileBytes);            
-                    using var page = eng.Process(img,(PageSegMode)Enum.Parse(typeof(PageSegMode), pageSegMode, true));
+                    using var img = Pix.LoadFromMemory(fileBytes);
+                    using var page = eng.Process(img, (PageSegMode)Enum.Parse(typeof(PageSegMode), pageSegMode, true));
+
                     var text = page.GetText();
                     var meanConfidence = page.GetMeanConfidence();
 

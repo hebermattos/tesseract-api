@@ -26,15 +26,12 @@ public class TesseracController : ControllerBase
             {
                 try
                 {
-                    eng.DefaultPageSegMode = (PageSegMode)Enum.Parse(typeof(PageSegMode), pageSegMode, true);
-
                     using var memoryStream = new MemoryStream();
                     file.CopyTo(memoryStream);
                     var fileBytes = memoryStream.ToArray();
 
-                    using var img = Pix.LoadFromMemory(fileBytes);
-                    using var page = eng.Process(img);
-
+                    using var img = Pix.LoadFromMemory(fileBytes);            
+                    using var page = eng.Process(img,(PageSegMode)Enum.Parse(typeof(PageSegMode), pageSegMode, true));
                     var text = page.GetText();
                     var meanConfidence = page.GetMeanConfidence();
 
